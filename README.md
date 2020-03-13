@@ -1,4 +1,4 @@
-# Projektowanie systemÃ³w sieciowych
+# Projektowanie serwisów sieciowych
 
 ## Authors
 - Hubert Gabryszewski
