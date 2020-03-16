@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
+//@EqualsAndHashCode(exclude = "users")
 @ToString(exclude = "users")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,11 +23,29 @@ public class Role {
 
     private String roleName;
 
-    @ManyToMany(mappedBy = "roles", cascade = CascadeType.ALL)
+    @ManyToMany(
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.EAGER )
+    @JoinTable(
+            name = "Role_User",
+            joinColumns = { @JoinColumn(name = "role_id") },
+            inverseJoinColumns = { @JoinColumn(name = "user_id") }
+    )
+
     private Set<User> users = new HashSet<>();
 
     public Role(String roleName) {
         this.roleName = roleName;
+    }
+
+    public void addUser(User user){
+        this.users.add(user);
+        user.getRoles().add(this);
+    }
+
+    public void removeUser(User user){
+        this.users.remove(user);
+        user.getRoles().remove(this);
     }
 
 }

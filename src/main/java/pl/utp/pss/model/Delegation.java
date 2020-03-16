@@ -1,5 +1,7 @@
 package pl.utp.pss.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -8,6 +10,7 @@ import javax.validation.constraints.Null;
 import java.time.LocalDate;
 
 @Data
+//@EqualsAndHashCode(exclude = "user")
 @ToString(exclude = "user")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,9 +24,11 @@ public class Delegation {
     private String description;
 
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateTimeStart;
 
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateTimeStop;
 
     @Column(columnDefinition = "double default 30")
@@ -52,6 +57,7 @@ public class Delegation {
 
     private double otherOutlayPrice;
 
+    @JsonIgnore
     @ManyToOne
     private User user;
 
@@ -80,5 +86,15 @@ public class Delegation {
             this.autoCapacity = AutoCapacity.NONE;
             this.km = 0.0;
         }
+    }
+
+    public void addUser(User user){
+        this.setUser(user);
+        user.getDelegations().add(this);
+    }
+
+    public void removeUser(User user){
+        this.setUser(null);
+        user.getDelegations().remove(this);
     }
 }

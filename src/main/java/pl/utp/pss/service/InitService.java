@@ -10,7 +10,6 @@ import pl.utp.pss.repository.UserRepository;
 import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Set;
 
 @Service
 public class InitService {
@@ -53,18 +52,19 @@ public class InitService {
         User u2 = new User("companyName2", "companyAddress2", "companyNip1",
                 "Adam", "Johnson", "AdamJohnson@gmail.com", "AdamJohnson");
 
-        u1.addRole(r1);
-        u1.addRole(r2);
-        u2.addRole(r2);
-        u2.addRole(r3);
 
-        u1.addDelegation(d1);
-        u1.addDelegation(d2);
-        u2.addDelegation(d3);
+        r1.addUser(u1);
+        r2.addUser(u1);
+        r2.addUser(u2);
+        r3.addUser(u2);
 
+        d1.addUser(u1);
+        d2.addUser(u1);
+        d3.addUser(u2);
+
+        userRepository.saveAll(Arrays.asList(u1, u2));
         roleRepository.saveAll(Arrays.asList(r1, r2, r3));
         delegationRepository.saveAll(Arrays.asList(d1, d2));
-        userRepository.saveAll(Arrays.asList(u1, u2));
 
         userRepository.findAll().forEach(user -> {
             System.out.println(user);
@@ -72,13 +72,11 @@ public class InitService {
             System.out.println(user.getDelegations());
         });
 
-
         System.out.println("\nDelegation by user name");
         System.out.println("Delegations of John:");
         System.out.println(delegationRepository.findAllByUser(userRepository.findByName("John").get()));
 
         System.out.println("\nDelegations of Adam:");
         System.out.println(delegationRepository.findAllByUser(userRepository.findByName("Adam").get()));
-
     }
 }

@@ -1,11 +1,13 @@
 package pl.utp.pss.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,18 +45,22 @@ public class User {
     private String password;
 
     private boolean status;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate registrationDate;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER )
-    @JoinTable(
-            name = "User_Role",
-            joinColumns = { @JoinColumn(name = "user_id") },
-            inverseJoinColumns = { @JoinColumn(name = "role_id") }
-    )
+    @JsonIgnore
+    @ManyToMany(mappedBy = "users",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 
 
-    @OneToMany(mappedBy="user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    @OneToMany(mappedBy="user",
+           cascade = CascadeType.ALL,
+           // orphanRemoval = true,
+            fetch = FetchType.EAGER)
     private Set<Delegation> delegations = new HashSet<>();
 
 
@@ -73,23 +79,4 @@ public class User {
         this.registrationDate = LocalDate.now();
     }
 
-    public void addRole(Role role){
-        this.roles.add(role);
-        role.getUsers().add(this);
-    }
-
-    public void removeRole(Role role){
-        this.roles.remove(role);
-        role.getUsers().remove(this);
-    }
-
-    public void addDelegation(Delegation delegation){
-        this.delegations.add(delegation);
-        delegation.setUser(this);
-    }
-
-    public void removeDelegation(Delegation delegation){
-        this.delegations.remove(delegation);
-        delegation.setUser(null);
-    }
 }
