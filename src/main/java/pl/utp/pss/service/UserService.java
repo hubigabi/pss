@@ -20,7 +20,6 @@ public class UserService {
     RoleRepository roleRepository;
     DelegationRepository delegationRepository;
 
-
     @Autowired
     public UserService(UserRepository userRepository, RoleRepository roleRepository, DelegationRepository delegationRepository) {
         this.userRepository = userRepository;
