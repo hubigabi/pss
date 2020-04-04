@@ -1,6 +1,7 @@
 package pl.utp.pss.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.utp.pss.model.*;
 import pl.utp.pss.repository.DelegationRepository;
@@ -14,17 +15,18 @@ import java.util.Arrays;
 @Service
 public class InitService {
 
-    UserRepository userRepository;
-    RoleRepository roleRepository;
-    DelegationRepository delegationRepository;
+    private UserRepository userRepository;
+    private RoleRepository roleRepository;
+    private DelegationRepository delegationRepository;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public InitService(UserRepository userRepository, RoleRepository roleRepository,
-                       DelegationRepository delegationRepository) {
+                       DelegationRepository delegationRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.delegationRepository = delegationRepository;
-
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostConstruct
@@ -48,9 +50,9 @@ public class InitService {
                 AutoCapacity.NONE, 0.0, 100, 45, 40);
 
         User u1 = new User("companyName1", "companyAddress1", "companyNip1",
-                "John", "Smith", "JohnSmith@gmail.com", "JohnSmith");
+                "John", "Smith", "JohnSmith@gmail.com", passwordEncoder.encode("JohnSmith"));
         User u2 = new User("companyName2", "companyAddress2", "companyNip1",
-                "Adam", "Johnson", "AdamJohnson@gmail.com", "AdamJohnson");
+                "Adam", "Johnson", "AdamJohnson@gmail.com", passwordEncoder.encode("AdamJohnson"));
 
 
         r1.addUser(u1);
