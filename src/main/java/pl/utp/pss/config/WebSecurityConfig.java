@@ -35,8 +35,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/test2").authenticated()
                 .antMatchers("/api/test3").hasRole("Role1")
                 .antMatchers("/db/**").permitAll()
+                .antMatchers("/logged").authenticated()
                 .and()
-                .formLogin().permitAll()
+                .formLogin().defaultSuccessUrl("/logged", true).permitAll()
                 .and()
                 .logout().permitAll();
 
