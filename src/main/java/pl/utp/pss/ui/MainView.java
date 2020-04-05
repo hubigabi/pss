@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.utp.pss.model.User;
-import pl.utp.pss.repository.UserRepository;
+import pl.utp.pss.service.DelegationService;
+import pl.utp.pss.service.UserService;
 
 
 @Title("My UI")
@@ -16,7 +17,10 @@ import pl.utp.pss.repository.UserRepository;
 public class MainView extends UI {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
+
+    @Autowired
+    private DelegationService delegationService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -47,6 +51,7 @@ public class MainView extends UI {
         delegationsButton.setWidth("140");
         delegationsButton.addClickListener(clickEvent -> {
                     mainView.removeAllComponents();
+                    mainView.addComponents(new DelegationView(userService, delegationService, loggedUser.getId()));
                 }
         );
 
@@ -54,7 +59,7 @@ public class MainView extends UI {
         profileButton.setWidth("140");
         profileButton.addClickListener(clickEvent -> {
                     mainView.removeAllComponents();
-                    mainView.addComponents(new ProfileView(userRepository, loggedUser.getId()));
+                    mainView.addComponents(new ProfileView(userService, loggedUser.getId()));
                 }
         );
 
@@ -63,7 +68,7 @@ public class MainView extends UI {
         changePasswordButton.setWidth("140");
         changePasswordButton.addClickListener(clickEvent -> {
                     mainView.removeAllComponents();
-                    mainView.addComponents(new SettingsView(userRepository, passwordEncoder, loggedUser.getId()));
+                    mainView.addComponents(new SettingsView(userService, passwordEncoder, loggedUser.getId()));
                 }
         );
 

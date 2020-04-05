@@ -34,7 +34,7 @@ public class DelegationController {
         delegationService.deleteDelegation(userId, delegationId);
     }
 
-    @PutMapping("changeDelegation")
+    @PutMapping("/changeDelegation")
     void changeDelegation(long delegationId, @RequestBody Delegation delegation) {
         delegation.setId(delegationId);
         delegation.setUser(delegationService.getDelegation(delegationId).getUser());

@@ -4,11 +4,11 @@ import com.vaadin.ui.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.utp.pss.model.Role;
 import pl.utp.pss.model.User;
-import pl.utp.pss.repository.UserRepository;
+import pl.utp.pss.service.UserService;
 
 public class ProfileView extends VerticalLayout {
 
-    UserRepository userRepository;
+    private UserService userService;
 
     private User loggedUser;
 
@@ -26,14 +26,14 @@ public class ProfileView extends VerticalLayout {
     private DateField registrationDateField;
 
     @Autowired
-    public ProfileView(UserRepository userRepository, long userId) {
-        this.userRepository = userRepository;
-        this.loggedUser = userRepository.findById(userId).get();
+    public ProfileView(UserService userService, long userId) {
+        this.userService = userService;
+        this.loggedUser = userService.getUser(userId);
 
         editButton = new Button("Edit");
-        editButton.addClickListener(clickEvent -> {
-            enable(true);
-        });
+        editButton.addClickListener(clickEvent ->
+                enable(true)
+        );
 
         nameTextField = new TextField("Name", loggedUser.getName());
         lastNameTextField = new TextField("Last Name", loggedUser.getLastName());
@@ -61,7 +61,7 @@ public class ProfileView extends VerticalLayout {
 
         saveButton = new Button("Save");
         saveButton.addClickListener(clickEvent -> {
-            User user = userRepository.findById(loggedUser.getId()).get();
+            User user = userService.getUser(loggedUser.getId());
 
             user.setName(nameTextField.getValue());
             user.setLastName(lastNameTextField.getValue());
@@ -70,7 +70,7 @@ public class ProfileView extends VerticalLayout {
             user.setCompanyAddress(companyAddressTextField.getValue());
             user.setCompanyNip(companyNipTextField.getValue());
 
-            userRepository.save(user);
+            userService.updateUser(user);
             enable(false);
             Notification.show("All changes ha been saved.",
                     "",

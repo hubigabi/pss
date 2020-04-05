@@ -52,4 +52,8 @@ public class DelegationService {
 
         delegationRepository.deleteById(delegationId);
     }
+
+    public void deleteEmptyDelegation(Delegation delegation) {
+        delegationRepository.delete(delegation);
+    }
 }
