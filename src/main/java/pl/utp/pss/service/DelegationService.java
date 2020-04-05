@@ -39,8 +39,8 @@ public class DelegationService {
         return delegationRepository.save(delegation);
     }
 
-    public void updateDelegation(Delegation delegation) {
-        delegationRepository.save(delegation);
+    public Delegation updateDelegation(Delegation delegation) {
+        return delegationRepository.save(delegation);
     }
 
     public void deleteDelegation(long userId, long delegationId) {

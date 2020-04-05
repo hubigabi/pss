@@ -21,6 +21,8 @@ public class SettingsView extends VerticalLayout {
         this.passwordEncoder = passwordEncoder;
         this.loggedUser = userService.getUser(userId);
 
+        setSpacing(true);
+
         PasswordField currentPasswordField = new PasswordField("Current password");
         PasswordField newPasswordField = new PasswordField("New password");
         PasswordField newPasswordField2 = new PasswordField("Type again new password");
@@ -40,13 +42,11 @@ public class SettingsView extends VerticalLayout {
                     newPasswordField.setValue("");
                     newPasswordField2.setValue("");
                 } else {
-                    Notification.show("New passwords are not identical!",
-                            "",
+                    Notification.show("New passwords are not identical!", "",
                             Notification.Type.ERROR_MESSAGE);
                 }
             } else {
-                Notification.show("Current password is wrong!",
-                        "",
+                Notification.show("Current password is wrong!", "",
                         Notification.Type.ERROR_MESSAGE);
             }
         });

@@ -30,6 +30,8 @@ public class ProfileView extends VerticalLayout {
         this.userService = userService;
         this.loggedUser = userService.getUser(userId);
 
+        setSpacing(true);
+
         editButton = new Button("Edit");
         editButton.addClickListener(clickEvent ->
                 enable(true)
@@ -72,8 +74,7 @@ public class ProfileView extends VerticalLayout {
 
             userService.updateUser(user);
             enable(false);
-            Notification.show("All changes ha been saved.",
-                    "",
+            Notification.show("All changes ha been saved.", "",
                     Notification.Type.HUMANIZED_MESSAGE);
         });
         enable(false);

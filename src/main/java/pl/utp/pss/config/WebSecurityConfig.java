@@ -9,17 +9,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.utp.pss.repository.UserRepository;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private UserRepository userRepository;
     private UserDetailsService userDetailsService;
 
     @Autowired
-    public WebSecurityConfig(UserRepository userRepository, UserDetailsService userDetailsService) {
-        this.userRepository = userRepository;
+    public WebSecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 

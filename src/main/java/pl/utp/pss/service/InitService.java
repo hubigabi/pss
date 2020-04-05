@@ -61,9 +61,9 @@ public class InitService {
                 80, 1, 1, 2, TransportType.TRAIN, 52.00,
                 AutoCapacity.NONE, 450.0, 90, 55, 70);
 
-        User u1 = new User("Company Name 1", "companyAddress1", "companyNip1",
+        User u1 = new User("Company Name 1", "Company Address 1", "Company Nip 1",
                 "John", "Smith", "JohnSmith@gmail.com", passwordEncoder.encode("JohnSmith"));
-        User u2 = new User("Company Name 2", "companyAddress2", "companyNip1",
+        User u2 = new User("Company Name 2", "Company Address 2", "Company Nip 1",
                 "Adam", "Johnson", "AdamJohnson@gmail.com", passwordEncoder.encode("AdamJohnson"));
 
         r1.addUser(u1);
