@@ -12,7 +12,7 @@ import pl.utp.pss.service.DelegationService;
 import pl.utp.pss.service.UserService;
 
 
-@Title("My UI")
+@Title("Delegation")
 @SpringUI(path = "/logged")
 public class MainView extends UI {
 

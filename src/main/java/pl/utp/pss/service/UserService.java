@@ -58,4 +58,8 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
     }
+
+    public List<User> findAllByEmail(String email) {
+        return userRepository.findAllByEmail(email);
+    }
 }

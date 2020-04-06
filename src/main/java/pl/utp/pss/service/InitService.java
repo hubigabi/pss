@@ -95,18 +95,5 @@ public class InitService {
 
         System.out.println("\nDelegations of Adam:");
         System.out.println(delegationRepository.findAllByUser(userRepository.findByName("Adam").get()));
-
-
-        long delegationId = delegationRepository.findAll().get(0).getId();
-        long userId = userRepository.findAll().get(0).getId();
-        System.out.println("delID" + delegationId);
-        System.out.println("userid" + userId);
-        Delegation delegation = delegationRepository.findById(delegationId).get();
-
-        User user = userRepository.findById(userId).get();
-        user.getDelegations().remove(delegation);
-        userRepository.save(user);
-
-        delegationRepository.deleteById(delegationId);
     }
 }

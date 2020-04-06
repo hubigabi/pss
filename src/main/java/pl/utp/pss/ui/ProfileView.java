@@ -63,19 +63,25 @@ public class ProfileView extends VerticalLayout {
 
         saveButton = new Button("Save");
         saveButton.addClickListener(clickEvent -> {
-            User user = userService.getUser(loggedUser.getId());
+            try {
+                User user = userService.getUser(loggedUser.getId());
 
-            user.setName(nameTextField.getValue());
-            user.setLastName(lastNameTextField.getValue());
-            user.setEmail(emailTextField.getValue());
-            user.setCompanyName(companyNameTextField.getValue());
-            user.setCompanyAddress(companyAddressTextField.getValue());
-            user.setCompanyNip(companyNipTextField.getValue());
+                user.setName(nameTextField.getValue());
+                user.setLastName(lastNameTextField.getValue());
+                user.setEmail(emailTextField.getValue());
+                user.setCompanyName(companyNameTextField.getValue());
+                user.setCompanyAddress(companyAddressTextField.getValue());
+                user.setCompanyNip(companyNipTextField.getValue());
 
-            userService.updateUser(user);
-            enable(false);
-            Notification.show("All changes ha been saved.", "",
-                    Notification.Type.HUMANIZED_MESSAGE);
+                userService.updateUser(user);
+                enable(false);
+                Notification.show("All changes ha been saved.", "",
+                        Notification.Type.HUMANIZED_MESSAGE);
+            } catch (Exception e) {
+                Notification.show("Wrong data to edit profile!", "",
+                        Notification.Type.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
         });
         enable(false);
 

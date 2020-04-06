@@ -198,6 +198,7 @@ public class DelegationView extends VerticalLayout {
                     } catch (Exception e) {
                         Notification.show("Wrong data to added delegation!", "",
                                 Notification.Type.ERROR_MESSAGE);
+                        e.printStackTrace();
                     }
                 }
         );
@@ -234,6 +235,7 @@ public class DelegationView extends VerticalLayout {
                             } catch (Exception e) {
                                 Notification.show("Wrong data to edit delegation!", "",
                                         Notification.Type.ERROR_MESSAGE);
+                                e.printStackTrace();
                             }
                         } else {
                             Notification.show("This delegation has taken place. You can not edit it!", "",

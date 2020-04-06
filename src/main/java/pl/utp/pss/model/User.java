@@ -9,7 +9,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 import java.util.*;
@@ -29,6 +31,7 @@ public class User implements UserDetails {
     private Long id;
 
     @NotNull
+    @Size(min = 3, max = 20)
     private String companyName;
 
     @NotNull
@@ -38,12 +41,15 @@ public class User implements UserDetails {
     private String companyNip;
 
     @NotNull
+    @Size(min = 3, max = 20)
     private String name;
 
     @NotNull
+    @Size(min = 3, max = 20)
     private String lastName;
 
     @NotNull
+    @Email
     private String email;
 
     @NotNull

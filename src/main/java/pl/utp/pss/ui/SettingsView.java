@@ -30,17 +30,27 @@ public class SettingsView extends VerticalLayout {
         Button saveButton = new Button("Save");
         saveButton.addClickListener(clickEvent -> {
             User user = userService.getUser(loggedUser.getId());
+            String regexPassword = "^(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}$";
 
             if (passwordEncoder.matches(currentPasswordField.getValue(), user.getPassword())) {
                 if (newPasswordField.getValue().equals(newPasswordField2.getValue())) {
-                    user.setPassword(passwordEncoder.encode(newPasswordField.getValue()));
-                    userService.updateUser(user);
-                    Notification.show("Password has been changed!",
-                            "",
-                            Notification.Type.HUMANIZED_MESSAGE);
-                    currentPasswordField.setValue("");
-                    newPasswordField.setValue("");
-                    newPasswordField2.setValue("");
+                    if (newPasswordField.getValue().matches(regexPassword)) {
+                        user.setPassword(passwordEncoder.encode(newPasswordField.getValue()));
+                        userService.updateUser(user);
+
+                        Notification.show("Password has been changed!",
+                                "",
+                                Notification.Type.HUMANIZED_MESSAGE);
+
+                        currentPasswordField.setValue("");
+                        newPasswordField.setValue("");
+                        newPasswordField2.setValue("");
+                    } else {
+                        Notification.show("New password is not valid!",
+                                "Password has to contain at least:\n" +
+                                        "one lower case, one upper case letter & 8 characters.",
+                                Notification.Type.ERROR_MESSAGE);
+                    }
                 } else {
                     Notification.show("New passwords are not identical!", "",
                             Notification.Type.ERROR_MESSAGE);
