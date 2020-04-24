@@ -7,9 +7,15 @@ import com.vaadin.ui.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import pl.utp.pss.model.User;
 import pl.utp.pss.service.DelegationService;
 import pl.utp.pss.service.UserService;
+
+import java.util.List;
+import java.util.Map;
 
 
 @Title("Delegation")
@@ -35,7 +41,42 @@ public class MainView extends UI {
 
     @Override
     protected void init(VaadinRequest request) {
-        loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof User) {
+            loggedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        } else {
+
+            OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("Site: " + oAuth2AuthenticationToken.getAuthorizedClientRegistrationId());
+
+            //Logged by Google
+            if (oAuth2AuthenticationToken.getAuthorizedClientRegistrationId().equals("google")) {
+                Map<String, Object> claims = ((DefaultOidcUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getClaims();
+                String mail = (String) claims.get("email");
+                System.out.println("Mail: " + mail);
+
+                List<User> userList = userService.findAllByEmail(mail);
+                if (userList.size() == 0) {
+                    getUI().getPage().setLocation("/");
+                } else {
+                    loggedUser = userList.get(0);
+                }
+            }
+            //Logged by Facebook
+            else if (oAuth2AuthenticationToken.getAuthorizedClientRegistrationId().equals("facebook")) {
+                DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+                String mail = (String) defaultOAuth2User.getAttributes().get("email");
+                System.out.println("Email: " + mail);
+
+                List<User> userList = userService.findAllByEmail(mail);
+                if (userList.size() == 0) {
+                    getUI().getPage().setLocation("/");
+                } else {
+                    loggedUser = userList.get(0);
+                }
+            }
+        }
 
         root = new VerticalLayout();
 

@@ -1,6 +1,7 @@
 package pl.utp.pss.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
+//@EnableOAuth2Sso
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private UserDetailsService userDetailsService;
@@ -36,7 +38,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin().defaultSuccessUrl("/logged", true).permitAll()
                 .and()
-                .logout().permitAll();
+                .logout().permitAll().logoutSuccessUrl("/")
+                .and()
+                .oauth2Login().defaultSuccessUrl("/logged");
 
         http.csrf().disable();
         http.headers().frameOptions().disable();

@@ -60,11 +60,14 @@ public class InitService {
         Delegation d7 = new Delegation("description 7", LocalDate.now().plusDays(4), LocalDate.now().plusDays(7),
                 80, 1, 1, 2, TransportType.TRAIN, 52.00,
                 AutoCapacity.NONE, 450.0, 90, 55, 70);
+        Delegation d8 = new Delegation("description 8", LocalDate.now().plusDays(2), LocalDate.now().plusDays(6),
+                60, 1, 1, 2, TransportType.BUS, 36.00,
+                AutoCapacity.NONE, 189.00, 120, 28, 16);
 
         User u1 = new User("Company Name 1", "Company Address 1", "Company Nip 1",
                 "John", "Smith", "JohnSmith@gmail.com", passwordEncoder.encode("JohnSmith"));
         User u2 = new User("Company Name 2", "Company Address 2", "Company Nip 1",
-                "Adam", "Johnson", "AdamJohnson@gmail.com", passwordEncoder.encode("AdamJohnson"));
+                "Adam", "Johnson", "hubigabi19@gmail.com", passwordEncoder.encode("AdamJohnson"));
 
         r1.addUser(u1);
         r2.addUser(u1);
@@ -78,6 +81,7 @@ public class InitService {
         d5.addUser(u1);
         d6.addUser(u1);
         d7.addUser(u1);
+        d8.addUser(u2);
 
         userRepository.saveAll(Arrays.asList(u1, u2));
         roleRepository.saveAll(Arrays.asList(r1, r2, r3));
