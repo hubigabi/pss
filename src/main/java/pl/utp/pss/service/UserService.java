@@ -5,12 +5,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.utp.pss.model.Delegation;
+import pl.utp.pss.model.Role;
 import pl.utp.pss.model.User;
 import pl.utp.pss.repository.DelegationRepository;
 import pl.utp.pss.repository.RoleRepository;
 import pl.utp.pss.repository.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -50,6 +53,29 @@ public class UserService {
     public void deleteUserById(long id) {
         roleRepository.deleteFrom_ROLE_USER_ByUserId(id);
         delegationRepository.deleteFrom_DELEGATION_ByUserId(id);
+        userRepository.deleteById(id);
+    }
+
+    public void deleteUserWithoutDelegationById(long id) {
+        User user = userRepository.findById(id).get();
+
+        List<Delegation> delegations = delegationRepository.findAllByUser(user)
+                .stream()
+                .map(delegation -> {
+                    delegation.removeUser(user);
+                    return delegation;
+                })
+                .collect(Collectors.toList());
+        delegationRepository.saveAll(delegations);
+
+        List<Role> roles = roleRepository.findAllByUsersContains(user)
+                .stream()
+                .map(role -> {
+                    role.removeUser(user);
+                    return role;
+                }).collect(Collectors.toList());
+        roleRepository.saveAll(roles);
+
         userRepository.deleteById(id);
     }
 

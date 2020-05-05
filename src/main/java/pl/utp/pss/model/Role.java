@@ -28,14 +28,13 @@ public class Role {
     private String roleName;
 
     @ManyToMany(
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            cascade = {CascadeType.PERSIST},
             fetch = FetchType.EAGER )
     @JoinTable(
             name = "Role_User",
             joinColumns = { @JoinColumn(name = "role_id") },
             inverseJoinColumns = { @JoinColumn(name = "user_id") }
     )
-
     private Set<User> users = new HashSet<>();
 
     public Role(String roleName) {

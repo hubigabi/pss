@@ -10,8 +10,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import pl.utp.pss.model.Role;
 import pl.utp.pss.model.User;
 import pl.utp.pss.service.DelegationService;
+import pl.utp.pss.service.RoleService;
 import pl.utp.pss.service.UserService;
 
 import java.util.List;
@@ -30,6 +32,9 @@ public class MainView extends UI {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RoleService roleService;
 
     private User loggedUser;
 
@@ -119,7 +124,21 @@ public class MainView extends UI {
                     getUI().getPage().setLocation("/logout");
                 }
         );
-        navBar.addComponents(delegationsButton, profileButton, changePasswordButton, signOutButton);
+        navBar.addComponents(delegationsButton, profileButton, changePasswordButton);
+
+        //FOR ADMIN
+        if (loggedUser.getRoles().stream().map(Role::getRoleName).anyMatch(s -> s.equals("ROLE_ADMIN"))) {
+            Button adminButton = new Button("Admin");
+            adminButton.setWidth("140");
+            adminButton.addClickListener(clickEvent -> {
+                        mainView.removeAllComponents();
+                        mainView.addComponents(new AdminView(userService, delegationService, roleService, loggedUser.getId()));
+                    }
+            );
+            navBar.addComponents(adminButton);
+        }
+
+        navBar.addComponent(signOutButton);
 
         mainView = new VerticalLayout();
         mainHorizontalLayout.addComponents(navBar, mainView);

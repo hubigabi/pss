@@ -32,7 +32,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/api/test1").permitAll()
                 .antMatchers("/api/test2").authenticated()
-                .antMatchers("/api/test3").hasRole("Role1")
+                .antMatchers("/api/test3").hasRole("ADMIN")
                 .antMatchers("/db/**").permitAll()
                 .antMatchers("/logged").authenticated()
                 .and()

@@ -69,7 +69,7 @@ public class User implements UserDetails {
 
     @JsonIgnore
     @OneToMany(mappedBy = "user",
-            cascade = CascadeType.ALL,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             // orphanRemoval = true,
             fetch = FetchType.EAGER)
     private Set<Delegation> delegations = new HashSet<>();
@@ -94,7 +94,7 @@ public class User implements UserDetails {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
         for (Role role : roles) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
+            authorities.add(new SimpleGrantedAuthority(role.getRoleName()));
         }
 
         System.out.println(authorities);

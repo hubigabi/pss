@@ -93,7 +93,7 @@ public class SignUpView extends UI {
 
                                     user = userService.createUser(user);
 
-                                    List<Role> roles = roleService.findAllByRoleName("Role1");
+                                    List<Role> roles = roleService.findAllByRoleName("ROLE_USER");
                                     if (roles.size() > 0) {
                                         Role role = roles.get(0);
                                         role.addUser(user);
@@ -146,6 +146,5 @@ public class SignUpView extends UI {
 
         root.setSpacing(true);
     }
-
 
 }

@@ -1,0 +1,8 @@
+package pl.utp.pss.model;
+
+public enum Status {
+    NOT_ACCEPTED,
+    ACCEPTED,
+    REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED,
+    REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED
+}

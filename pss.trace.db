@@ -618,3 +618,19 @@ Caused by: java.lang.IllegalStateException: The file is locked: nio:C:/Studia/VI
 	at org.h2.mvstore.FileStore.open(FileStore.java:172)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:381)
 	... 60 more
+2020-05-05 19:36:32 jdbc[14]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM USER USER DELEGATION[*]"; SQL statement:
+SELECT * FROM USER USER DELEGATION [42000-200]
+2020-05-05 19:36:34 jdbc[14]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM USER USER DELEGATION[*]"; SQL statement:
+SELECT * FROM USER USER DELEGATION [42000-200]
+2020-05-05 19:37:07 jdbc[14]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM 
+DELEGATION ROLE DELEGATION[*]"; SQL statement:
+SELECT * FROM 
+DELEGATION ROLE DELEGATION [42000-200]
+2020-05-05 19:37:08 jdbc[14]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM 
+DELEGATION ROLE DELEGATION[*]"; SQL statement:
+SELECT * FROM 
+DELEGATION ROLE DELEGATION [42000-200]
