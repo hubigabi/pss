@@ -64,6 +64,9 @@ public class Delegation {
 
     private double otherOutlayPrice;
 
+    @NotNull
+    private Status status = Status.NOT_ACCEPTED;
+
     @JsonIgnore
     @ManyToOne
     private User user;
@@ -93,6 +96,8 @@ public class Delegation {
             this.autoCapacity = AutoCapacity.NONE;
             this.km = 0.0;
         }
+
+        this.status = Status.NOT_ACCEPTED;
     }
 
     public void addUser(User user) {

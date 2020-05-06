@@ -164,6 +164,7 @@ public class AdminView extends VerticalLayout {
         userHorizontalLayout.setComponentAlignment(giveAdminRoleButton, Alignment.BOTTOM_RIGHT);
         userHorizontalLayout.setComponentAlignment(deleteUserButton, Alignment.BOTTOM_RIGHT);
 
+        delegationGrid.addColumn(Delegation::getStatus).setCaption("Status").setWidth(200);
         delegationGrid.addColumn(Delegation::getDescription).setCaption("Description").setWidth(150);
         delegationGrid.addColumn(Delegation::getDateTimeStart).setCaption("Start date").setWidth(130);
         delegationGrid.addColumn(Delegation::getDateTimeStop).setCaption("Stop date").setWidth(130);

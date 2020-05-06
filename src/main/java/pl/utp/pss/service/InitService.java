@@ -75,6 +75,13 @@ public class InitService {
                 60, 2, 1, 0, TransportType.BUS, 48.00,
                 AutoCapacity.NONE, 280.00, 180, 45, 55);
 
+        d1.setStatus(Status.ACCEPTED);
+        d4.setStatus(Status.ACCEPTED);
+        d5.setStatus(Status.REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED);
+        d7.setStatus(Status.REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED);
+        d9.setStatus(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED);
+        d10.setStatus(Status.ACCEPTED);
+
         User u1 = new User("Company Name 1", "Company Address 1", "Company Nip 1",
                 "John", "Smith", "JohnSmith@gmail.com", passwordEncoder.encode("JohnSmith"));
         User u2 = new User("Company Name 2", "Company Address 2", "Company Nip 2",

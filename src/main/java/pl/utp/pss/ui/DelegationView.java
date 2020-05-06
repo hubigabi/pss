@@ -6,10 +6,7 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.utp.pss.model.AutoCapacity;
-import pl.utp.pss.model.Delegation;
-import pl.utp.pss.model.TransportType;
-import pl.utp.pss.model.User;
+import pl.utp.pss.model.*;
 import pl.utp.pss.service.DelegationService;
 import pl.utp.pss.service.UserService;
 
@@ -29,6 +26,7 @@ public class DelegationView extends VerticalLayout {
         this.loggedUser = userService.getUser(userId);
 
         Grid<Delegation> delegationGrid = new Grid<>();
+        delegationGrid.addColumn(Delegation::getStatus).setCaption("Status").setWidth(200);
         delegationGrid.addColumn(Delegation::getDescription).setCaption("Description");
         delegationGrid.addColumn(Delegation::getDateTimeStart).setCaption("Start date").setWidth(130);
         delegationGrid.addColumn(Delegation::getDateTimeStop).setCaption("Stop date").setWidth(130);
@@ -80,21 +78,26 @@ public class DelegationView extends VerticalLayout {
         deleteButton.addClickListener(clickEvent -> {
                     if (delegationGrid.getSelectedItems().size() == 1) {
                         Delegation delegation = delegationGrid.getSelectedItems().iterator().next();
+                        if (!delegation.getStatus().equals(Status.ACCEPTED) &&
+                                !delegation.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED)) {
+                            if (LocalDate.now().isBefore(delegation.getDateTimeStart())) {
+                                int indexDelegation = delegationList.indexOf(delegation);
 
-                        if (LocalDate.now().isBefore(delegation.getDateTimeStart())) {
-                            int indexDelegation = delegationList.indexOf(delegation);
+                                delegation.removeUser(loggedUser);
+                                delegationService.updateDelegation(delegation);
+                                delegationService.deleteEmptyDelegation(delegation);
 
-                            delegation.removeUser(loggedUser);
-                            delegationService.updateDelegation(delegation);
-                            delegationService.deleteEmptyDelegation(delegation);
+                                delegationList.remove(indexDelegation);
+                                provider.refreshAll();
 
-                            delegationList.remove(indexDelegation);
-                            provider.refreshAll();
-
-                            Notification.show("Delegation has been successfully deleted.", "",
-                                    Notification.Type.HUMANIZED_MESSAGE);
+                                Notification.show("Delegation has been successfully deleted.", "",
+                                        Notification.Type.HUMANIZED_MESSAGE);
+                            } else {
+                                Notification.show("This delegation has taken place. You can not delete it!", "",
+                                        Notification.Type.ERROR_MESSAGE);
+                            }
                         } else {
-                            Notification.show("This delegation has taken place. You can not delete it!", "",
+                            Notification.show("You can not delete delegation, which was accepted.!", "",
                                     Notification.Type.ERROR_MESSAGE);
                         }
                     } else {
@@ -104,9 +107,45 @@ public class DelegationView extends VerticalLayout {
                 }
         );
 
+        Button requestButton = new Button("Request");
+        requestButton.setWidth("150");
+        requestButton.addClickListener(clickEvent -> {
+
+            if (delegationGrid.getSelectedItems().size() == 1) {
+                Delegation delegationBefore = delegationGrid.getSelectedItems().iterator().next();
+                Delegation delegationAfter = delegationService.getDelegation(delegationBefore.getId());
+
+                if (delegationAfter.getStatus().equals(Status.NOT_ACCEPTED)) {
+                    delegationAfter.setStatus(Status.REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED);
+                } else if (delegationAfter.getStatus().equals(Status.ACCEPTED)) {
+                    delegationAfter.setStatus(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED);
+                } else if (delegationAfter.getStatus().equals(Status.REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED)) {
+                    delegationAfter.setStatus(Status.NOT_ACCEPTED);
+                } else if (delegationAfter.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED)) {
+                    delegationAfter.setStatus(Status.ACCEPTED);
+                }
+
+
+                delegationAfter = delegationService.updateDelegation(delegationAfter);
+
+                delegationList.remove(delegationBefore);
+                delegationList.add(delegationAfter);
+
+                provider.refreshAll();
+
+                Notification.show("The status of the delegation has been successfully changed.", "",
+                        Notification.Type.HUMANIZED_MESSAGE);
+
+                delegationGrid.select(delegationAfter);
+            } else {
+                Notification.show("Select delegation to edit!", "",
+                        Notification.Type.ERROR_MESSAGE);
+            }
+        });
+
         actionsHorizontalLayout.setMargin(true);
         actionsHorizontalLayout.setSpacing(true);
-        actionsHorizontalLayout.addComponents(addButton, editButton, deleteButton);
+        actionsHorizontalLayout.addComponents(addButton, editButton, deleteButton, requestButton);
 
 
         HorizontalLayout addDelegationHorizontalLayout1 = new HorizontalLayout();
@@ -159,6 +198,15 @@ public class DelegationView extends VerticalLayout {
                 accommodationPriceTextField.setValue(delegation.getAccommodationPrice() + "");
                 otherOutlayDescTextField.setValue(delegation.getOtherOutlayDesc() + "");
                 otherOutlayPriceTextField.setValue(delegation.getOtherOutlayPrice() + "");
+
+                if (delegation.getStatus().equals(Status.ACCEPTED) ||
+                        delegation.getStatus().equals(Status.NOT_ACCEPTED)) {
+                    requestButton.setCaption("Make request");
+                } else if (delegation.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED) ||
+                        delegation.getStatus().equals(Status.REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED)) {
+                    requestButton.setCaption("Cancel request");
+                }
+
             }
         });
 
@@ -200,39 +248,44 @@ public class DelegationView extends VerticalLayout {
         editButton.addClickListener(clickEvent -> {
                     if (delegationGrid.getSelectedItems().size() == 1) {
                         Delegation delegation = delegationGrid.getSelectedItems().iterator().next();
+                        if (!delegation.getStatus().equals(Status.ACCEPTED) &&
+                                !delegation.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED)) {
+                            if (LocalDate.now().isBefore(delegation.getDateTimeStart())) {
+                                try {
+                                    delegation.setDescription(descriptionTextField.getValue());
+                                    delegation.setDateTimeStart(dateTimeStartDateField.getValue());
+                                    delegation.setDateTimeStop(dateTimeStopDateField.getValue());
+                                    delegation.setTravelDietAmount(Double.parseDouble(travelDietAmountTextField.getValue()));
+                                    delegation.setBreakfastNumber(Integer.parseInt(breakfastNumberTextField.getValue()));
+                                    delegation.setDinnerNumber(Integer.parseInt(dinnerNumberTextField.getValue()));
+                                    delegation.setSupperNumber(Integer.parseInt(supperNumberTextField.getValue()));
+                                    delegation.setTransportType(transportTypeComboBox.getValue());
+                                    delegation.setTicketPrice(Double.parseDouble(ticketPriceTextField.getValue()));
+                                    delegation.setAutoCapacity(autoCapacityComboBox.getValue());
+                                    delegation.setKm(Double.parseDouble(kmTextField.getValue()));
+                                    delegation.setAccommodationPrice(Double.parseDouble(accommodationPriceTextField.getValue()));
+                                    delegation.setOtherOutlayDesc(Double.parseDouble(otherOutlayDescTextField.getValue()));
+                                    delegation.setOtherOutlayPrice(Double.parseDouble(otherOutlayPriceTextField.getValue()));
 
-                        if (LocalDate.now().isBefore(delegation.getDateTimeStart())) {
-                            try {
-                                delegation.setDescription(descriptionTextField.getValue());
-                                delegation.setDateTimeStart(dateTimeStartDateField.getValue());
-                                delegation.setDateTimeStop(dateTimeStopDateField.getValue());
-                                delegation.setTravelDietAmount(Double.parseDouble(travelDietAmountTextField.getValue()));
-                                delegation.setBreakfastNumber(Integer.parseInt(breakfastNumberTextField.getValue()));
-                                delegation.setDinnerNumber(Integer.parseInt(dinnerNumberTextField.getValue()));
-                                delegation.setSupperNumber(Integer.parseInt(supperNumberTextField.getValue()));
-                                delegation.setTransportType(transportTypeComboBox.getValue());
-                                delegation.setTicketPrice(Double.parseDouble(ticketPriceTextField.getValue()));
-                                delegation.setAutoCapacity(autoCapacityComboBox.getValue());
-                                delegation.setKm(Double.parseDouble(kmTextField.getValue()));
-                                delegation.setAccommodationPrice(Double.parseDouble(accommodationPriceTextField.getValue()));
-                                delegation.setOtherOutlayDesc(Double.parseDouble(otherOutlayDescTextField.getValue()));
-                                delegation.setOtherOutlayPrice(Double.parseDouble(otherOutlayPriceTextField.getValue()));
+                                    delegationList.remove(delegation);
+                                    delegation = delegationService.updateDelegation(delegation);
+                                    delegationList.add(delegation);
+                                    provider.refreshAll();
 
-                                delegationList.remove(delegation);
-                                delegation = delegationService.updateDelegation(delegation);
-                                delegationList.add(delegation);
-                                provider.refreshAll();
+                                    Notification.show("Delegation has been successfully edited.", "",
+                                            Notification.Type.HUMANIZED_MESSAGE);
 
-                                Notification.show("Delegation has been successfully edited.", "",
-                                        Notification.Type.HUMANIZED_MESSAGE);
-
-                            } catch (Exception e) {
-                                Notification.show("Wrong data to edit delegation!", "",
+                                } catch (Exception e) {
+                                    Notification.show("Wrong data to edit delegation!", "",
+                                            Notification.Type.ERROR_MESSAGE);
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                Notification.show("This delegation has taken place. You can not edit it!", "",
                                         Notification.Type.ERROR_MESSAGE);
-                                e.printStackTrace();
                             }
                         } else {
-                            Notification.show("This delegation has taken place. You can not edit it!", "",
+                            Notification.show("You can not edit delegation, which was accepted.!", "",
                                     Notification.Type.ERROR_MESSAGE);
                         }
                     } else {
