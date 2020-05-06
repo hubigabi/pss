@@ -57,6 +57,14 @@ public class AdminView extends VerticalLayout {
         Button deleteUserButton = new Button("Delete user");
         deleteUserButton.setEnabled(false);
 
+        Button acceptRequestButton = new Button("Accept request");
+        acceptRequestButton.setWidth("150");
+        acceptRequestButton.setEnabled(false);
+
+        Button rejectRequestButton = new Button("Reject request");
+        rejectRequestButton.setWidth("150");
+        rejectRequestButton.setEnabled(false);
+
         ComboBox<User> userComboBox =
                 new ComboBox<>("Select user");
 
@@ -99,6 +107,8 @@ public class AdminView extends VerticalLayout {
                 giveAdminRoleButton.setEnabled(true);
                 deleteUserButton.setEnabled(true);
             }
+            acceptRequestButton.setEnabled(false);
+            rejectRequestButton.setEnabled(false);
         });
 
         giveAdminRoleButton.addClickListener(clickEvent -> {
@@ -155,6 +165,84 @@ public class AdminView extends VerticalLayout {
                 }
         );
 
+        acceptRequestButton.addClickListener(clickEvent -> {
+            if (delegationGrid.getSelectedItems().size() == 1) {
+                Delegation delegationBefore = delegationGrid.getSelectedItems().iterator().next();
+
+                if (delegationBefore.getStatus().equals(Status.REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED) ||
+                        delegationBefore.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED)) {
+
+                    Delegation delegationAfter = delegationService.getDelegation(delegationBefore.getId());
+
+                    if (delegationAfter.getStatus().equals(Status.REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED)) {
+                        delegationAfter.setStatus(Status.ACCEPTED);
+                    } else if (delegationAfter.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED)) {
+                        delegationAfter.setStatus(Status.NOT_ACCEPTED);
+                    }
+
+                    delegationAfter = delegationService.updateDelegation(delegationAfter);
+
+                    delegationList.remove(delegationBefore);
+                    delegationList.add(delegationAfter);
+
+                    gridProvider.refreshAll();
+
+                    Notification.show("The status of the delegation has been successfully changed.", "",
+                            Notification.Type.HUMANIZED_MESSAGE);
+
+                    delegationGrid.select(delegationAfter);
+
+                } else {
+                    Notification.show("There is no request in this delegation!", "",
+                            Notification.Type.ERROR_MESSAGE);
+                }
+
+            } else {
+                Notification.show("Select delegation to edit!", "",
+                        Notification.Type.ERROR_MESSAGE);
+            }
+
+        });
+
+        rejectRequestButton.addClickListener(clickEvent -> {
+            if (delegationGrid.getSelectedItems().size() == 1) {
+                Delegation delegationBefore = delegationGrid.getSelectedItems().iterator().next();
+
+                if (delegationBefore.getStatus().equals(Status.REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED) ||
+                        delegationBefore.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED)) {
+
+                    Delegation delegationAfter = delegationService.getDelegation(delegationBefore.getId());
+
+                    if (delegationAfter.getStatus().equals(Status.REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED)) {
+                        delegationAfter.setStatus(Status.NOT_ACCEPTED);
+                    } else if (delegationAfter.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED)) {
+                        delegationAfter.setStatus(Status.ACCEPTED);
+                    }
+
+                    delegationAfter = delegationService.updateDelegation(delegationAfter);
+
+                    delegationList.remove(delegationBefore);
+                    delegationList.add(delegationAfter);
+
+                    gridProvider.refreshAll();
+
+                    Notification.show("The status of the delegation has been successfully changed.", "",
+                            Notification.Type.HUMANIZED_MESSAGE);
+
+                    delegationGrid.select(delegationAfter);
+
+                } else {
+                    Notification.show("There is no request in this delegation!", "",
+                            Notification.Type.ERROR_MESSAGE);
+                }
+
+            } else {
+                Notification.show("Select delegation to edit!", "",
+                        Notification.Type.ERROR_MESSAGE);
+            }
+
+        });
+
         HorizontalLayout userHorizontalLayout = new HorizontalLayout();
         userHorizontalLayout.setWidth("100%");
         userHorizontalLayout.setSpacing(true);
@@ -206,22 +294,17 @@ public class AdminView extends VerticalLayout {
                     if (delegationGrid.getSelectedItems().size() == 1) {
                         Delegation delegation = delegationGrid.getSelectedItems().iterator().next();
 
-                        if (LocalDate.now().isBefore(delegation.getDateTimeStart())) {
-                            int indexDelegation = delegationList.indexOf(delegation);
+                        int indexDelegation = delegationList.indexOf(delegation);
 
-                            delegation.removeUser(chosenUser);
-                            delegationService.updateDelegation(delegation);
-                            delegationService.deleteEmptyDelegation(delegation);
+                        delegation.removeUser(chosenUser);
+                        delegationService.updateDelegation(delegation);
+                        delegationService.deleteEmptyDelegation(delegation);
 
-                            delegationList.remove(indexDelegation);
-                            gridProvider.refreshAll();
+                        delegationList.remove(indexDelegation);
+                        gridProvider.refreshAll();
 
-                            Notification.show("Delegation has been successfully deleted.", "",
-                                    Notification.Type.HUMANIZED_MESSAGE);
-                        } else {
-                            Notification.show("This delegation has taken place. You can not delete it!", "",
-                                    Notification.Type.ERROR_MESSAGE);
-                        }
+                        Notification.show("Delegation has been successfully deleted.", "",
+                                Notification.Type.HUMANIZED_MESSAGE);
                     } else {
                         Notification.show("Select delegation to delete!", "",
                                 Notification.Type.ERROR_MESSAGE);
@@ -231,7 +314,7 @@ public class AdminView extends VerticalLayout {
 
         actionsHorizontalLayout.setMargin(true);
         actionsHorizontalLayout.setSpacing(true);
-        actionsHorizontalLayout.addComponents(addButton, editButton, deleteButton);
+        actionsHorizontalLayout.addComponents(addButton, editButton, deleteButton, acceptRequestButton, rejectRequestButton);
 
 
         HorizontalLayout addDelegationHorizontalLayout1 = new HorizontalLayout();
@@ -243,6 +326,7 @@ public class AdminView extends VerticalLayout {
         HorizontalLayout addDelegationHorizontalLayout3 = new HorizontalLayout();
         addDelegationHorizontalLayout3.addStyleName(ValoTheme.LAYOUT_HORIZONTAL_WRAPPING);
 
+
         TextField descriptionTextField = new TextField("Description");
         DateField dateTimeStartDateField = new DateField("Start date");
         DateField dateTimeStopDateField = new DateField("Stop date");
@@ -251,20 +335,22 @@ public class AdminView extends VerticalLayout {
         TextField dinnerNumberTextField = new TextField("Number of dinners");
         TextField supperNumberTextField = new TextField("Number of suppers");
 
-        ComboBox<TransportType> transportTypeComboBox =
-                new ComboBox<>("Transport type");
+        ComboBox<TransportType> transportTypeComboBox = new ComboBox<>("Transport type");
         transportTypeComboBox.setItems(TransportType.values());
 
         TextField ticketPriceTextField = new TextField("Ticket price");
 
-        ComboBox<AutoCapacity> autoCapacityComboBox =
-                new ComboBox<>("Auto capacity");
+        ComboBox<AutoCapacity> autoCapacityComboBox = new ComboBox<>("Auto capacity");
         autoCapacityComboBox.setItems(AutoCapacity.values());
 
         TextField kmTextField = new TextField("Km");
         TextField accommodationPriceTextField = new TextField("Accommodation price");
         TextField otherOutlayDescTextField = new TextField("Other outlay desc");
         TextField otherOutlayPriceTextField = new TextField("Other outlay price");
+
+        ComboBox<Status> statusComboBox = new ComboBox<>("Status");
+        statusComboBox.setItems(Status.ACCEPTED, Status.NOT_ACCEPTED);
+        statusComboBox.setEmptySelectionAllowed(false);
 
         delegationGrid.addSelectionListener(event -> {
             if (event.getAllSelectedItems().size() == 1) {
@@ -284,6 +370,17 @@ public class AdminView extends VerticalLayout {
                 accommodationPriceTextField.setValue(delegation.getAccommodationPrice() + "");
                 otherOutlayDescTextField.setValue(delegation.getOtherOutlayDesc() + "");
                 otherOutlayPriceTextField.setValue(delegation.getOtherOutlayPrice() + "");
+                statusComboBox.setValue(delegation.getStatus());
+
+                if (delegation.getStatus().equals(Status.REQUEST_FROM_NOT_ACCEPTED_TO_ACCEPTED)
+                        || delegation.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED)) {
+                    acceptRequestButton.setEnabled(true);
+                    rejectRequestButton.setEnabled(true);
+                } else {
+                    acceptRequestButton.setEnabled(false);
+                    rejectRequestButton.setEnabled(false);
+                }
+
             }
         });
 
@@ -306,12 +403,15 @@ public class AdminView extends VerticalLayout {
                                 Double.parseDouble(otherOutlayDescTextField.getValue()),
                                 Double.parseDouble(otherOutlayPriceTextField.getValue())
                         );
+                        delegation.setStatus(statusComboBox.getValue());
 
                         delegation.addUser(chosenUser);
 
                         delegation = delegationService.createDelegation(delegation);
                         delegationList.add(delegation);
                         gridProvider.refreshAll();
+
+                        delegationGrid.select(delegation);
 
                         Notification.show("Delegation has been successfully added.", "",
                                 Notification.Type.HUMANIZED_MESSAGE);
@@ -326,42 +426,42 @@ public class AdminView extends VerticalLayout {
         editButton.setWidth("100");
         editButton.addClickListener(clickEvent -> {
                     if (delegationGrid.getSelectedItems().size() == 1) {
-                        Delegation delegation = delegationGrid.getSelectedItems().iterator().next();
+                        Delegation delegationBefore = delegationGrid.getSelectedItems().iterator().next();
+                        Delegation delegationAfter = delegationService.getDelegation(delegationBefore.getId());
 
-                        if (LocalDate.now().isBefore(delegation.getDateTimeStart())) {
-                            try {
-                                delegation.setDescription(descriptionTextField.getValue());
-                                delegation.setDateTimeStart(dateTimeStartDateField.getValue());
-                                delegation.setDateTimeStop(dateTimeStopDateField.getValue());
-                                delegation.setTravelDietAmount(Double.parseDouble(travelDietAmountTextField.getValue()));
-                                delegation.setBreakfastNumber(Integer.parseInt(breakfastNumberTextField.getValue()));
-                                delegation.setDinnerNumber(Integer.parseInt(dinnerNumberTextField.getValue()));
-                                delegation.setSupperNumber(Integer.parseInt(supperNumberTextField.getValue()));
-                                delegation.setTransportType(transportTypeComboBox.getValue());
-                                delegation.setTicketPrice(Double.parseDouble(ticketPriceTextField.getValue()));
-                                delegation.setAutoCapacity(autoCapacityComboBox.getValue());
-                                delegation.setKm(Double.parseDouble(kmTextField.getValue()));
-                                delegation.setAccommodationPrice(Double.parseDouble(accommodationPriceTextField.getValue()));
-                                delegation.setOtherOutlayDesc(Double.parseDouble(otherOutlayDescTextField.getValue()));
-                                delegation.setOtherOutlayPrice(Double.parseDouble(otherOutlayPriceTextField.getValue()));
+                        try {
+                            delegationAfter.setDescription(descriptionTextField.getValue());
+                            delegationAfter.setDateTimeStart(dateTimeStartDateField.getValue());
+                            delegationAfter.setDateTimeStop(dateTimeStopDateField.getValue());
+                            delegationAfter.setTravelDietAmount(Double.parseDouble(travelDietAmountTextField.getValue()));
+                            delegationAfter.setBreakfastNumber(Integer.parseInt(breakfastNumberTextField.getValue()));
+                            delegationAfter.setDinnerNumber(Integer.parseInt(dinnerNumberTextField.getValue()));
+                            delegationAfter.setSupperNumber(Integer.parseInt(supperNumberTextField.getValue()));
+                            delegationAfter.setTransportType(transportTypeComboBox.getValue());
+                            delegationAfter.setTicketPrice(Double.parseDouble(ticketPriceTextField.getValue()));
+                            delegationAfter.setAutoCapacity(autoCapacityComboBox.getValue());
+                            delegationAfter.setKm(Double.parseDouble(kmTextField.getValue()));
+                            delegationAfter.setAccommodationPrice(Double.parseDouble(accommodationPriceTextField.getValue()));
+                            delegationAfter.setOtherOutlayDesc(Double.parseDouble(otherOutlayDescTextField.getValue()));
+                            delegationAfter.setOtherOutlayPrice(Double.parseDouble(otherOutlayPriceTextField.getValue()));
+                            delegationAfter.setStatus(statusComboBox.getValue());
 
-                                delegationList.remove(delegation);
-                                delegation = delegationService.updateDelegation(delegation);
-                                delegationList.add(delegation);
-                                gridProvider.refreshAll();
+                            delegationList.remove(delegationBefore);
+                            delegationAfter = delegationService.updateDelegation(delegationAfter);
+                            delegationList.add(delegationAfter);
+                            gridProvider.refreshAll();
 
-                                Notification.show("Delegation has been successfully edited.", "",
-                                        Notification.Type.HUMANIZED_MESSAGE);
+                            delegationGrid.select(delegationAfter);
 
-                            } catch (Exception e) {
-                                Notification.show("Wrong data to edit delegation!", "",
-                                        Notification.Type.ERROR_MESSAGE);
-                                e.printStackTrace();
-                            }
-                        } else {
-                            Notification.show("This delegation has taken place. You can not edit it!", "",
+                            Notification.show("Delegation has been successfully edited.", "",
+                                    Notification.Type.HUMANIZED_MESSAGE);
+
+                        } catch (Exception e) {
+                            Notification.show("Wrong data to edit delegation!", "",
                                     Notification.Type.ERROR_MESSAGE);
+                            e.printStackTrace();
                         }
+
                     } else {
                         Notification.show("Select delegation to edit!", "",
                                 Notification.Type.ERROR_MESSAGE);
@@ -369,18 +469,17 @@ public class AdminView extends VerticalLayout {
                 }
         );
 
+        addDelegationHorizontalLayout1.addComponents(statusComboBox, descriptionTextField,
+                dateTimeStartDateField, dateTimeStopDateField, travelDietAmountTextField);
 
-        addDelegationHorizontalLayout1.addComponents(descriptionTextField, dateTimeStartDateField,
-                dateTimeStopDateField, travelDietAmountTextField);
-
-        addDelegationHorizontalLayout2.addComponents(breakfastNumberTextField, dinnerNumberTextField,
-                supperNumberTextField, transportTypeComboBox, ticketPriceTextField);
+        addDelegationHorizontalLayout2.addComponents(breakfastNumberTextField,
+                dinnerNumberTextField, supperNumberTextField, transportTypeComboBox, ticketPriceTextField);
 
         addDelegationHorizontalLayout3.addComponents(autoCapacityComboBox, kmTextField,
                 accommodationPriceTextField, otherOutlayDescTextField, otherOutlayPriceTextField);
 
-        addComponents(userHorizontalLayout, delegationGrid, actionsHorizontalLayout, addDelegationHorizontalLayout1,
-                addDelegationHorizontalLayout2, addDelegationHorizontalLayout3);
+        addComponents(userHorizontalLayout, delegationGrid, actionsHorizontalLayout,
+                addDelegationHorizontalLayout1, addDelegationHorizontalLayout2, addDelegationHorizontalLayout3);
 
     }
 

@@ -235,6 +235,7 @@ public class DelegationView extends VerticalLayout {
                         delegationList.add(delegation);
                         provider.refreshAll();
 
+                        delegationGrid.select(delegation);
                         Notification.show("Delegation has been successfully added.", "",
                                 Notification.Type.HUMANIZED_MESSAGE);
                     } catch (Exception e) {
@@ -247,30 +248,34 @@ public class DelegationView extends VerticalLayout {
 
         editButton.addClickListener(clickEvent -> {
                     if (delegationGrid.getSelectedItems().size() == 1) {
-                        Delegation delegation = delegationGrid.getSelectedItems().iterator().next();
-                        if (!delegation.getStatus().equals(Status.ACCEPTED) &&
-                                !delegation.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED)) {
-                            if (LocalDate.now().isBefore(delegation.getDateTimeStart())) {
-                                try {
-                                    delegation.setDescription(descriptionTextField.getValue());
-                                    delegation.setDateTimeStart(dateTimeStartDateField.getValue());
-                                    delegation.setDateTimeStop(dateTimeStopDateField.getValue());
-                                    delegation.setTravelDietAmount(Double.parseDouble(travelDietAmountTextField.getValue()));
-                                    delegation.setBreakfastNumber(Integer.parseInt(breakfastNumberTextField.getValue()));
-                                    delegation.setDinnerNumber(Integer.parseInt(dinnerNumberTextField.getValue()));
-                                    delegation.setSupperNumber(Integer.parseInt(supperNumberTextField.getValue()));
-                                    delegation.setTransportType(transportTypeComboBox.getValue());
-                                    delegation.setTicketPrice(Double.parseDouble(ticketPriceTextField.getValue()));
-                                    delegation.setAutoCapacity(autoCapacityComboBox.getValue());
-                                    delegation.setKm(Double.parseDouble(kmTextField.getValue()));
-                                    delegation.setAccommodationPrice(Double.parseDouble(accommodationPriceTextField.getValue()));
-                                    delegation.setOtherOutlayDesc(Double.parseDouble(otherOutlayDescTextField.getValue()));
-                                    delegation.setOtherOutlayPrice(Double.parseDouble(otherOutlayPriceTextField.getValue()));
+                        Delegation delegationBefore = delegationGrid.getSelectedItems().iterator().next();
+                        Delegation delegationAfter = delegationService.getDelegation(delegationBefore.getId());
 
-                                    delegationList.remove(delegation);
-                                    delegation = delegationService.updateDelegation(delegation);
-                                    delegationList.add(delegation);
+                        if (!delegationAfter.getStatus().equals(Status.ACCEPTED) &&
+                                !delegationAfter.getStatus().equals(Status.REQUEST_FROM_ACCEPTED_TO_NOT_ACCEPTED)) {
+                            if (LocalDate.now().isBefore(delegationAfter.getDateTimeStart())) {
+                                try {
+                                    delegationAfter.setDescription(descriptionTextField.getValue());
+                                    delegationAfter.setDateTimeStart(dateTimeStartDateField.getValue());
+                                    delegationAfter.setDateTimeStop(dateTimeStopDateField.getValue());
+                                    delegationAfter.setTravelDietAmount(Double.parseDouble(travelDietAmountTextField.getValue()));
+                                    delegationAfter.setBreakfastNumber(Integer.parseInt(breakfastNumberTextField.getValue()));
+                                    delegationAfter.setDinnerNumber(Integer.parseInt(dinnerNumberTextField.getValue()));
+                                    delegationAfter.setSupperNumber(Integer.parseInt(supperNumberTextField.getValue()));
+                                    delegationAfter.setTransportType(transportTypeComboBox.getValue());
+                                    delegationAfter.setTicketPrice(Double.parseDouble(ticketPriceTextField.getValue()));
+                                    delegationAfter.setAutoCapacity(autoCapacityComboBox.getValue());
+                                    delegationAfter.setKm(Double.parseDouble(kmTextField.getValue()));
+                                    delegationAfter.setAccommodationPrice(Double.parseDouble(accommodationPriceTextField.getValue()));
+                                    delegationAfter.setOtherOutlayDesc(Double.parseDouble(otherOutlayDescTextField.getValue()));
+                                    delegationAfter.setOtherOutlayPrice(Double.parseDouble(otherOutlayPriceTextField.getValue()));
+
+                                    delegationList.remove(delegationBefore);
+                                    delegationAfter = delegationService.updateDelegation(delegationAfter);
+                                    delegationList.add(delegationAfter);
                                     provider.refreshAll();
+
+                                    delegationGrid.select(delegationAfter);
 
                                     Notification.show("Delegation has been successfully edited.", "",
                                             Notification.Type.HUMANIZED_MESSAGE);
