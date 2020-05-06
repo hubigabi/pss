@@ -94,7 +94,6 @@ public class Delegation {
             this.ticketPrice = 0.0;
         } else {
             this.autoCapacity = AutoCapacity.NONE;
-            this.km = 0.0;
         }
 
         this.status = Status.NOT_ACCEPTED;

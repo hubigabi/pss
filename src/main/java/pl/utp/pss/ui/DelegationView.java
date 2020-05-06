@@ -109,6 +109,7 @@ public class DelegationView extends VerticalLayout {
 
         Button requestButton = new Button("Request");
         requestButton.setWidth("150");
+        requestButton.setEnabled(false);
         requestButton.addClickListener(clickEvent -> {
 
             if (delegationGrid.getSelectedItems().size() == 1) {
@@ -143,9 +144,23 @@ public class DelegationView extends VerticalLayout {
             }
         });
 
+        Button generatePDFButton = new Button("Report");
+        generatePDFButton.setEnabled(false);
+        generatePDFButton.setWidth("100");
+        generatePDFButton.addClickListener(clickEvent -> {
+
+            if (delegationGrid.getSelectedItems().size() == 1) {
+                Delegation delegation = delegationGrid.getSelectedItems().iterator().next();
+                getUI().getPage().open("/api/delegation/report/" + delegation.getId(), "_blank");
+            } else {
+                Notification.show("Select delegation to edit!", "",
+                        Notification.Type.ERROR_MESSAGE);
+            }
+        });
+
         actionsHorizontalLayout.setMargin(true);
         actionsHorizontalLayout.setSpacing(true);
-        actionsHorizontalLayout.addComponents(addButton, editButton, deleteButton, requestButton);
+        actionsHorizontalLayout.addComponents(addButton, editButton, deleteButton, requestButton, generatePDFButton);
 
 
         HorizontalLayout addDelegationHorizontalLayout1 = new HorizontalLayout();
@@ -198,6 +213,9 @@ public class DelegationView extends VerticalLayout {
                 accommodationPriceTextField.setValue(delegation.getAccommodationPrice() + "");
                 otherOutlayDescTextField.setValue(delegation.getOtherOutlayDesc() + "");
                 otherOutlayPriceTextField.setValue(delegation.getOtherOutlayPrice() + "");
+
+                requestButton.setEnabled(true);
+                generatePDFButton.setEnabled(true);
 
                 if (delegation.getStatus().equals(Status.ACCEPTED) ||
                         delegation.getStatus().equals(Status.NOT_ACCEPTED)) {
