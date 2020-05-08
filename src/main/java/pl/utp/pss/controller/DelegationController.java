@@ -84,7 +84,7 @@ public class DelegationController {
         headers.add("Access-Control-Allow-Origin", "*");
         headers.add("Access-Control-Allow-Methods", "GET, POST, PUT");
         headers.add("Access-Control-Allow-Headers", "Content-Type");
-        headers.add("Content-Disposition", "filename=" + delegationId + ".pdf");
+        headers.add("Content-Disposition", "filename=" + "Delegation_" + delegationId + ".pdf");
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
