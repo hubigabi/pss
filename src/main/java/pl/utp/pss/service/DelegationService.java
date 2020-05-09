@@ -5,6 +5,8 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import pl.utp.pss.model.Delegation;
@@ -12,6 +14,7 @@ import pl.utp.pss.model.User;
 import pl.utp.pss.repository.DelegationRepository;
 import pl.utp.pss.repository.UserRepository;;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,6 +32,16 @@ public class DelegationService {
     public DelegationService(DelegationRepository delegationRepository, UserRepository userRepository) {
         this.delegationRepository = delegationRepository;
         this.userRepository = userRepository;
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void init() throws Exception {
+        File f = new File("reports");
+        if (!f.exists() || !f.isDirectory()) {
+            if (!f.mkdir()) {
+                throw new Exception("Could not create reports directory");
+            }
+        }
     }
 
     public List<Delegation> getAllDelegations() {

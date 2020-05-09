@@ -40,4 +40,7 @@ frontend/package-lock.json
 frontend/.editorconfig
 frontend/dist
 
+reports/
 
+pss.mv.db
+pss.trace.db
