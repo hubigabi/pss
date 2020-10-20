@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import pl.utp.pss.model.Delegation;
 import pl.utp.pss.model.User;
 import pl.utp.pss.repository.DelegationRepository;
-import pl.utp.pss.repository.UserRepository;;
+import pl.utp.pss.repository.UserRepository;
 
 import java.io.File;
 import java.io.FileNotFoundException;
